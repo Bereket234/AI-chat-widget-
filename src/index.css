@@ -1,0 +1,53 @@
+/* Color Variables */
+:root {
+  /* Main Color */
+  --primary-color: #0eaee9;
+
+  /* Primary Color Variants */
+  --primary-light: #4bc3f0;
+  --primary-lighter: #7dd4f5;
+  --primary-lightest: #b0e6fa;
+  --primary-dark: #0b8bc2;
+  --primary-darker: #086a9a;
+  --primary-darkest: #054973;
+
+  /* Semantic Color Variants */
+  --primary-hover: #0d9fd8;
+  --primary-active: #0b8bc2;
+  --primary-focus: #0eaee9;
+  --primary-disabled: #b0e6fa;
+
+  /* Background Variants */
+  --primary-bg: #f0fafe;
+  --primary-bg-light: #f8fdff;
+  --primary-bg-dark: #e0f3fe;
+
+  /* Text Variants */
+  --primary-text: #0eaee9;
+  --primary-text-light: #4bc3f0;
+  --primary-text-dark: #0b8bc2;
+
+  /* Border Variants */
+  --primary-border: #0eaee9;
+  --primary-border-light: #7dd4f5;
+  --primary-border-dark: #0b8bc2;
+
+  /* Shadow Variants */
+  --primary-shadow: rgba(14, 174, 233, 0.15);
+  --primary-shadow-light: rgba(14, 174, 233, 0.08);
+  --primary-shadow-dark: rgba(14, 174, 233, 0.25);
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
