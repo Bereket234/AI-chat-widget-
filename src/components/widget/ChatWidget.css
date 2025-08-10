@@ -92,6 +92,7 @@
   justify-content: space-between;
   align-items: center;
   background: var(--primary-bg-light);
+  position: relative;
 }
 
 .chat-header h3 {
@@ -99,6 +100,25 @@
   font-size: 18px;
   font-weight: 600;
   color: var(--primary-text-dark);
+  flex: 1;
+  text-align: center;
+}
+
+.back-button {
+  background: var(--primary-bg);
+  border: none;
+  cursor: pointer;
+  color: var(--primary-text);
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  position: absolute;
+  left: 20px;
+}
+
+.back-button:hover {
+  color: var(--primary-text-dark);
+  background-color: var(--primary-bg-dark);
 }
 
 .close-button {

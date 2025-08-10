@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
-export type ChatPage = "email-capture" | "chat";
+export const CHAT_PAGES = ["email-capture", "chat"] as const;
+
+export type ChatPage = (typeof CHAT_PAGES)[number];
 
 interface UserInfo {
   firstName: string;
@@ -18,7 +20,7 @@ interface ChatWidgetContextType {
 }
 
 const ChatWidgetContext = createContext<ChatWidgetContextType | undefined>(
-  undefined,
+  undefined
 );
 
 interface ChatWidgetProviderProps {
@@ -32,6 +34,10 @@ export const ChatWidgetProvider: React.FC<ChatWidgetProviderProps> = ({
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
   const navigateTo = (page: ChatPage) => {
+    if (!CHAT_PAGES.includes(page)) {
+      console.warn(`Invalid page navigation attempted: ${page}`);
+      return;
+    }
     setCurrentPage(page);
   };
 

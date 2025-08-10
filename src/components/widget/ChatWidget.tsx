@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import "./ChatWidget.css";
 import logo from "../../assets/logo.png";
+import { useChatWidget } from "../../context/ChatWidgetContext";
 
 const SparkleIcon = () => (
   <svg
@@ -37,10 +38,17 @@ interface ChatWidgetProps {
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({ children }) => {
   const [open, setOpen] = useState(false);
+  const { currentPage, navigateTo } = useChatWidget();
 
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleBack = () => {
+    navigateTo("email-capture");
+  };
+
+  const showBackButton = currentPage !== "email-capture";
 
   return (
     <div className={`chat-widget-container ${open ? "open" : ""}`}>
@@ -59,6 +67,19 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ children }) => {
         <div className="chat-widget-overlay">
           <div className="chat-widget">
             <div className="chat-header">
+              {showBackButton && (
+                <button className="back-button" onClick={handleBack}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path
+                      d="M15 10H5M5 10L10 5M5 10L10 15"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              )}
               <h3>What can I help you?</h3>
               <button className="close-button" onClick={handleClose}>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

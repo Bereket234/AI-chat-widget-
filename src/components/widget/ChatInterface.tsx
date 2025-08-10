@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./ChatInterface.css";
 import { useChatWidget } from "../../context/ChatWidgetContext.tsx";
+import { MessageCircle, Mic, Video } from "lucide-react";
 
 interface Message {
   id: number;
@@ -14,6 +15,9 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [activeMode, setActiveMode] = useState<"chat" | "audio" | "video">(
+    "chat"
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -65,6 +69,10 @@ const ChatInterface = () => {
     }, 1000);
   };
 
+  const handleModeChange = (mode: "chat" | "audio" | "video") => {
+    setActiveMode(mode);
+  };
+
   const formatTime = (timestamp: Date) => {
     return timestamp.toLocaleTimeString([], {
       hour: "2-digit",
@@ -110,33 +118,61 @@ const ChatInterface = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <form className="chat-input-form" onSubmit={handleSendMessage}>
-        <div className="input-container">
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Type your message..."
-            className="chat-input"
-            disabled={isTyping}
-          />
-          <button
-            type="submit"
-            className="send-button"
-            disabled={!inputMessage.trim() || isTyping}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path
-                d="M10 18L18 10L10 2M18 10H2"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-      </form>
+      <div className="chat-mode-buttons">
+        <button
+          className={`mode-button ${activeMode === "chat" ? "active" : ""}`}
+          onClick={() => handleModeChange("chat")}
+          title="Text Chat"
+        >
+          <MessageCircle size={18} />
+          <span>Chat</span>
+        </button>
+        <button
+          className={`mode-button ${activeMode === "audio" ? "active" : ""}`}
+          onClick={() => handleModeChange("audio")}
+          title="Voice Chat"
+        >
+          <Mic size={18} />
+          <span>Audio</span>
+        </button>
+        <button
+          className={`mode-button ${activeMode === "video" ? "active" : ""}`}
+          onClick={() => handleModeChange("video")}
+          title="Video Chat"
+        >
+          <Video size={18} />
+          <span>Video</span>
+        </button>
+      </div>
+      <div>
+        <form className="chat-input-form" onSubmit={handleSendMessage}>
+          <div className="input-container">
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Type your message..."
+              className="chat-input"
+              disabled={isTyping}
+            />
+            <button
+              type="submit"
+              className="send-button"
+              disabled={!inputMessage.trim() || isTyping}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M10 18L18 10L10 2M18 10H2"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
