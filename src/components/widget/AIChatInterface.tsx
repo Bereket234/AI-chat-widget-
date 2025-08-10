@@ -1,23 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./ChatInterface.css";
 import { useChatWidget } from "../../context/ChatWidgetContext.tsx";
-import { MessageCircle, Mic, Video, User } from "lucide-react";
+import { User } from "lucide-react";
 
 interface Message {
   id: number;
   text: string;
-  sender: "user" | "bot";
+  sender: "user" | "ai";
   timestamp: Date;
 }
 
-const ChatInterface = () => {
+const AIChatInterface = () => {
   const { userInfo, navigateTo } = useChatWidget();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [activeMode, setActiveMode] = useState<"chat" | "audio" | "video">(
-    "chat",
-  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -32,16 +29,16 @@ const ChatInterface = () => {
     if (userInfo) {
       const welcomeMessage: Message = {
         id: 1,
-        text: `Hello ${userInfo.firstName}! How can I help you today?`,
-        sender: "bot",
+        text: `Hello ${userInfo.firstName}! I'm your AI assistant. How can I help you today?`,
+        sender: "ai",
         timestamp: new Date(),
       };
       setMessages([welcomeMessage]);
     } else {
       const welcomeMessage: Message = {
         id: 1,
-        text: `Hello! How can I help you today?`,
-        sender: "bot",
+        text: `Hello! I'm your AI assistant. How can I help you today?`,
+        sender: "ai",
         timestamp: new Date(),
       };
       setMessages([welcomeMessage]);
@@ -64,25 +61,21 @@ const ChatInterface = () => {
     setInputMessage("");
     setIsTyping(true);
 
-    // Simulate bot response
+    // Simulate AI response
     setTimeout(() => {
-      const botResponse: Message = {
+      const aiResponse: Message = {
         id: messages.length + 2,
-        text: "Thank you for your message! I'm here to help. How can I assist you further?",
-        sender: "bot",
+        text: "I understand your question. Let me help you with that. Is there anything specific you'd like to know?",
+        sender: "ai",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, botResponse]);
+      setMessages((prev) => [...prev, aiResponse]);
       setIsTyping(false);
     }, 1000);
   };
 
-  const handleModeChange = (mode: "chat" | "audio" | "video") => {
-    setActiveMode(mode);
-  };
-
-  const handleChatWithAI = () => {
-    navigateTo("ai-chat");
+  const handleContactHuman = () => {
+    navigateTo("chat");
   };
 
   const formatTime = (timestamp: Date) => {
@@ -95,17 +88,17 @@ const ChatInterface = () => {
   return (
     <div className="chat-interface">
       <div className="chat-header">
-        <div className="expert-avatar">
-          <div className="expert-avatar-circle">
-            <span>EX</span>
+        <div className="ai-avatar">
+          <div className="ai-avatar-circle">
+            <span>AI</span>
           </div>
         </div>
-        <div className="expert-info">
-          <p className="expert-info-title">Expert Support</p>
-          <p className="expert-info-subtitle">Human Customer Service</p>
+        <div className="ai-info">
+          <p className="ai-info-title">AI Assistant</p>
+          <p className="ai-info-subtitle">Available 24/7</p>
         </div>
-        <button className="chat-with-ai-btn" onClick={handleChatWithAI}>
-          Chat with AI
+        <button className="contact-human-btn" onClick={handleContactHuman}>
+          Contact Human
         </button>
       </div>
 
@@ -114,7 +107,7 @@ const ChatInterface = () => {
           <div
             key={message.id}
             className={`message ${
-              message.sender === "user" ? "user-message" : "bot-message"
+              message.sender === "user" ? "user-message" : "ai-message"
             }`}
           >
             <div className="message-avatar">
@@ -123,8 +116,8 @@ const ChatInterface = () => {
                   <User size={16} />
                 </div>
               ) : (
-                <div className="expert-avatar-small">
-                  <span>EX</span>
+                <div className="ai-avatar-small">
+                  <span>AI</span>
                 </div>
               )}
             </div>
@@ -138,10 +131,10 @@ const ChatInterface = () => {
         ))}
 
         {isTyping && (
-          <div className="message bot-message">
+          <div className="message ai-message">
             <div className="message-avatar">
-              <div className="expert-avatar-small">
-                <span>EX</span>
+              <div className="ai-avatar-small">
+                <span>AI</span>
               </div>
             </div>
             <div className="message-content">
@@ -157,32 +150,6 @@ const ChatInterface = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="chat-mode-buttons">
-        <button
-          className={`mode-button ${activeMode === "chat" ? "active" : ""}`}
-          onClick={() => handleModeChange("chat")}
-          title="Text Chat"
-        >
-          <MessageCircle size={18} />
-          <span>Chat</span>
-        </button>
-        <button
-          className={`mode-button ${activeMode === "audio" ? "active" : ""}`}
-          onClick={() => handleModeChange("audio")}
-          title="Voice Chat"
-        >
-          <Mic size={18} />
-          <span>Audio</span>
-        </button>
-        <button
-          className={`mode-button ${activeMode === "video" ? "active" : ""}`}
-          onClick={() => handleModeChange("video")}
-          title="Video Chat"
-        >
-          <Video size={18} />
-          <span>Video</span>
-        </button>
-      </div>
       <div>
         <form className="chat-input-form" onSubmit={handleSendMessage}>
           <div className="input-container">
@@ -190,7 +157,7 @@ const ChatInterface = () => {
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="Ask me anything..."
               className="chat-input"
               disabled={isTyping}
             />
@@ -216,4 +183,4 @@ const ChatInterface = () => {
   );
 };
 
-export default ChatInterface;
+export default AIChatInterface;

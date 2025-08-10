@@ -85,7 +85,7 @@
   }
 }
 
-.chat-header {
+.main-chat-header {
   padding: 10px 20px;
   border-bottom: 1px solid var(--primary-border-light);
   display: flex;
@@ -95,7 +95,7 @@
   position: relative;
 }
 
-.chat-header h3 {
+.main-chat-header h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;

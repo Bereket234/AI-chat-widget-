@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import "./EmailCaptureForm.css";
 import { useChatWidget } from "../../context/ChatWidgetContext.tsx";
@@ -16,13 +16,19 @@ interface FormErrors {
 }
 
 const EmailCaptureForm = () => {
-  const { navigateTo, setUserInfo } = useChatWidget();
+  const { navigateTo, setUserInfo, widgetSettings } = useChatWidget();
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     email: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useEffect(() => {
+    if (widgetSettings && !widgetSettings.email_capture) {
+      navigateTo("chat");
+    }
+  }, [widgetSettings]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -69,7 +75,11 @@ const EmailCaptureForm = () => {
         lastName: formData.lastName,
         email: formData.email,
       });
-      navigateTo("chat");
+      if (widgetSettings?.chat_priority === "human") {
+        navigateTo("chat");
+      } else {
+        navigateTo("ai-chat");
+      }
     }
   };
 

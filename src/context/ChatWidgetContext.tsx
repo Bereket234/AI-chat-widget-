@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
-export const CHAT_PAGES = ["email-capture", "chat"] as const;
+export const CHAT_PAGES = ["email-capture", "chat", "ai-chat"] as const;
 
 export type ChatPage = (typeof CHAT_PAGES)[number];
 
@@ -11,12 +11,23 @@ interface UserInfo {
   email: string;
 }
 
+interface WidgetSettings {
+  text_color: string;
+  font_family: string;
+  chat_priority: string;
+  email_capture: boolean;
+  widget_background_color: string;
+}
+
 interface ChatWidgetContextType {
   currentPage: ChatPage;
   userInfo: UserInfo | null;
+  widgetSettings: WidgetSettings | null;
   navigateTo: (page: ChatPage) => void;
   setUserInfo: (info: UserInfo) => void;
+  setWidgetSettings: (settings: WidgetSettings) => void;
   resetState: () => void;
+  isAIPriority: () => boolean;
 }
 
 const ChatWidgetContext = createContext<ChatWidgetContextType | undefined>(
@@ -32,6 +43,9 @@ export const ChatWidgetProvider: React.FC<ChatWidgetProviderProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState<ChatPage>("email-capture");
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [widgetSettings, setWidgetSettings] = useState<WidgetSettings | null>(
+    null
+  );
 
   const navigateTo = (page: ChatPage) => {
     if (!CHAT_PAGES.includes(page)) {
@@ -44,14 +58,38 @@ export const ChatWidgetProvider: React.FC<ChatWidgetProviderProps> = ({
   const resetState = () => {
     setCurrentPage("email-capture");
     setUserInfo(null);
+    setWidgetSettings(null);
+  };
+
+  // Update current page when widget settings change
+  const updateWidgetSettings = (settings: WidgetSettings) => {
+    setWidgetSettings(settings);
+
+    // Navigate based on chat priority
+    if (settings.email_capture) {
+      setCurrentPage("email-capture");
+    } else if (settings.chat_priority === "ai") {
+      setCurrentPage("ai-chat");
+    } else if (settings.chat_priority === "human") {
+      setCurrentPage("chat");
+    } else {
+      setCurrentPage("email-capture");
+    }
+  };
+
+  const isAIPriority = () => {
+    return widgetSettings?.chat_priority === "ai";
   };
 
   const value: ChatWidgetContextType = {
     currentPage,
     userInfo,
+    widgetSettings,
     navigateTo,
     setUserInfo,
+    setWidgetSettings: updateWidgetSettings,
     resetState,
+    isAIPriority,
   };
 
   return (
