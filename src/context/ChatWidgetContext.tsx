@@ -17,6 +17,7 @@ interface WidgetSettings {
   chat_priority: string;
   email_capture: boolean;
   widget_background_color: string;
+  ai_only?: boolean; // Optional field for AI-only mode
 }
 
 interface ChatWidgetContextType {
@@ -68,12 +69,14 @@ export const ChatWidgetProvider: React.FC<ChatWidgetProviderProps> = ({
     // Navigate based on chat priority
     if (settings.email_capture) {
       setCurrentPage("email-capture");
+    } else if (settings.ai_only) {
+      setCurrentPage("ai-chat");
     } else if (settings.chat_priority === "ai") {
       setCurrentPage("ai-chat");
     } else if (settings.chat_priority === "human") {
       setCurrentPage("chat");
     } else {
-      setCurrentPage("email-capture");
+      setCurrentPage("ai-chat");
     }
   };
 

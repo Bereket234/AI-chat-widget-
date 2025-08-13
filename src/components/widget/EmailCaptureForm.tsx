@@ -75,11 +75,18 @@ const EmailCaptureForm = () => {
         lastName: formData.lastName,
         email: formData.email,
       });
-      if (widgetSettings?.chat_priority === "human") {
-        navigateTo("chat");
-      } else {
+      if (widgetSettings?.ai_only) {
         navigateTo("ai-chat");
+      } else if (widgetSettings?.chat_priority === "ai") {
+        navigateTo("ai-chat");
+      } else {
+        navigateTo("chat");
       }
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+      });
     }
   };
 

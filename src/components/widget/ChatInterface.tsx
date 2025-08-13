@@ -11,7 +11,7 @@ interface Message {
 }
 
 const ChatInterface = () => {
-  const { userInfo, navigateTo } = useChatWidget();
+  const { userInfo, navigateTo, widgetSettings } = useChatWidget();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -29,6 +29,11 @@ const ChatInterface = () => {
   }, [messages]);
 
   useEffect(() => {
+    if (widgetSettings?.ai_only) {
+      navigateTo("ai-chat");
+      return;
+    }
+
     if (userInfo) {
       const welcomeMessage: Message = {
         id: 1,

@@ -17,9 +17,11 @@ function App() {
         chat_priority: "human",
         email_capture: true,
         widget_background_color: "#fff",
+        ai_only: true, 
       },
     };
     setWidgetSettings(data.settings);
+
     const url = window.location.hostname;
     console.log("----url----", url);
     fetch(

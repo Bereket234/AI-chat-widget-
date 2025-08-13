@@ -11,7 +11,7 @@ interface Message {
 }
 
 const AIChatInterface = () => {
-  const { userInfo, navigateTo } = useChatWidget();
+  const { userInfo, navigateTo, widgetSettings } = useChatWidget();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -97,9 +97,11 @@ const AIChatInterface = () => {
           <p className="ai-info-title">AI Assistant</p>
           <p className="ai-info-subtitle">Available 24/7</p>
         </div>
-        <button className="contact-human-btn" onClick={handleContactHuman}>
-          Contact Human
-        </button>
+        {!widgetSettings?.ai_only && (
+          <button className="contact-human-btn" onClick={handleContactHuman}>
+            Contact Human
+          </button>
+        )}
       </div>
 
       <div className="chat-messages">
