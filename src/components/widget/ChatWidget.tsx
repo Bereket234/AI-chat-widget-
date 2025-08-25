@@ -59,7 +59,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ children }) => {
         <div className="chat-widget-overlay">
           <div className="chat-widget">
             <div className="main-chat-header">
-              <h3>What can I help you?</h3>
+              <h3>How can I help?</h3>
               <button className="close-button" onClick={handleClose}>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path

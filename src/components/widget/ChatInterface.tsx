@@ -1,23 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./ChatInterface.css";
 import { useChatWidget } from "../../context/ChatWidgetContext.tsx";
-import { MessageCircle, Mic, Video, User } from "lucide-react";
-
-interface Message {
-  id: number;
-  text: string;
-  sender: "user" | "bot";
-  timestamp: Date;
-}
+import { Mic, Phone, Video } from "lucide-react";
+import { useCometChat } from "../../context/cometChatContext.tsx";
+import { CometChat } from "@cometchat/chat-sdk-javascript";
 
 const ChatInterface = () => {
-  const { userInfo, navigateTo, widgetSettings } = useChatWidget();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { navigateTo, widgetSettings } = useChatWidget();
+  const {
+    isAuthenticated,
+    cometChatUser,
+    activeCall,
+    outgoingCall,
+    incomingCalls,
+    initialize,
+    login,
+    startCall,
+    endCall,
+    cometChatService,
+    messages,
+    setMessages,
+    rejectCall,
+    acceptCall,
+  } = useCometChat();
   const [inputMessage, setInputMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [activeMode, setActiveMode] = useState<"chat" | "audio" | "video">(
-    "chat",
-  );
+  const [isTyping] = useState(false);
+  const [_, setActiveMode] = useState<"chat" | "audio" | "video">("chat");
+  const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -25,65 +34,127 @@ const ChatInterface = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
     if (widgetSettings?.ai_only) {
       navigateTo("ai-chat");
       return;
     }
+  }, []);
 
-    if (userInfo) {
-      const welcomeMessage: Message = {
-        id: 1,
-        text: `Hello ${userInfo.firstName}! How can I help you today?`,
-        sender: "bot",
-        timestamp: new Date(),
-      };
-      setMessages([welcomeMessage]);
-    } else {
-      const welcomeMessage: Message = {
-        id: 1,
-        text: `Hello! How can I help you today?`,
-        sender: "bot",
-        timestamp: new Date(),
-      };
-      setMessages([welcomeMessage]);
-    }
-  }, [userInfo]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-  const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!inputMessage.trim()) return;
-
-    const userMessage: Message = {
-      id: messages.length + 1,
-      text: inputMessage,
-      sender: "user",
-      timestamp: new Date(),
+  useEffect(() => {
+    const config = {
+      appId: (import.meta as any).env.VITE_COMETCHAT_APP_ID as string,
+      region: (import.meta as any).env.VITE_COMETCHAT_REGION as string,
+      authKey: (import.meta as any).env.VITE_COMETCHAT_AUTH_KEY as string,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInputMessage("");
-    setIsTyping(true);
+    if (!isAuthenticated && config.appId && config.region && config.authKey) {
+      (async () => {
+        const ok = await initialize(config);
+        if (!ok) return;
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: messages.length + 2,
-        text: "Thank you for your message! I'm here to help. How can I assist you further?",
-        sender: "bot",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, botResponse]);
-      setIsTyping(false);
-    }, 1000);
+        const uid = "3b36ad5f-7f5f-4544-b05e-45b72c72e1e2";
+
+        try {
+          await cometChatService?.createUser(uid, "beki", config.authKey);
+        } catch (error) {
+          console.log("User might already exist:", error);
+        }
+
+        await cometChatService?.login(uid, config.authKey);
+        // const user = await cometChatService?.getUser(uid);
+        login(uid);
+      })();
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const conversations = await cometChatService.getConversations(10);
+      const target = conversations[0];
+
+      const messages = await cometChatService.getMessages(target.id, 30);
+      setMessages(messages);
+    };
+    fetchMessages();
+    return () => {};
+  }, [
+    cometChatService,
+    isAuthenticated,
+    activeCall,
+    outgoingCall,
+    incomingCalls,
+  ]);
+
+  useEffect(() => {
+    if (!containerRef.current || !activeCall) return;
+
+    const initializeCall = async () => {
+      try {
+        await cometChatService.startCall(
+          activeCall.sessionId,
+          containerRef.current!,
+          () => endCall(activeCall.sessionId),
+          activeCall.callType
+        );
+      } catch (error) {
+        console.error("Failed to initialize call:", error);
+        cometChatService.endCall(activeCall.sessionId);
+      }
+    };
+
+    initializeCall();
+
+    return () => {
+      cometChatService.endCall(activeCall.sessionId);
+    };
+  }, [activeCall]);
+
+  const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+    try {
+      e.preventDefault();
+
+      if (!inputMessage.trim()) return;
+      console.log("here");
+
+      const messege = await cometChatService.sendMessage(
+        "test_user_1",
+        inputMessage
+      );
+
+      setMessages((prev) => [...prev, messege]);
+      setInputMessage("");
+    } catch (e) {
+      console.log("error sending message", e);
+    }
   };
 
-  const handleModeChange = (mode: "chat" | "audio" | "video") => {
-    setActiveMode(mode);
+  const handleStartVideo = async () => {
+    setActiveMode("video");
+    try {
+      const conversations = await cometChatService.getConversations(10);
+      const target = conversations[0];
+      if (!target) return;
+
+      await startCall("test_user_1", "video");
+    } catch (e) {
+      console.error("Video call start failed", e);
+    }
+  };
+  const handleStartAudio = async () => {
+    setActiveMode("audio");
+    try {
+      const conversations = await cometChatService.getConversations(10);
+      const target = conversations[0];
+      if (!target) return;
+
+      await startCall("test_user_1", "audio");
+    } catch (e) {
+      console.error("Audio call start failed", e);
+    }
   };
 
   const handleChatWithAI = () => {
@@ -99,16 +170,35 @@ const ChatInterface = () => {
 
   return (
     <div className="chat-interface">
+      {activeCall && (
+        <div ref={containerRef} className="call_ui">
+          {" "}
+        </div>
+      )}
+
       <div className="chat-header">
         <div className="expert-avatar">
           <div className="expert-avatar-circle">
-            <span>EX</span>
+            {cometChatUser?.avatar ? (
+              <img
+                src={"https://cdn-icons-png.flaticon.com/512/3541/3541871.png"}
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <span>EX</span>
+            )}
           </div>
         </div>
         <div className="expert-info">
-          <p className="expert-info-title">Expert Support</p>
+          <p className="expert-info-title">{"Expert Support"}</p>
           <p className="expert-info-subtitle">Human Customer Service</p>
         </div>
+
         <button className="chat-with-ai-btn" onClick={handleChatWithAI}>
           Chat with AI
         </button>
@@ -117,26 +207,88 @@ const ChatInterface = () => {
       <div className="chat-messages">
         {messages.map((message) => (
           <div
-            key={message.id}
+            key={message.getId()}
             className={`message ${
-              message.sender === "user" ? "user-message" : "bot-message"
+              message.getSender().getUid() !== cometChatUser?.uid
+                ? "user-message"
+                : "bot-message"
             }`}
           >
             <div className="message-avatar">
-              {message.sender === "user" ? (
+              {message.getSender().getUid() !== cometChatUser?.uid ? (
                 <div className="user-avatar">
-                  <User size={16} />
+                  {message.getSender().getAvatar() ? (
+                    <img
+                      src={message.getSender().getAvatar()}
+                      alt="EX"
+                      className="expert-avatar-image"
+                      style={{
+                        width: "22px",
+                        height: "22px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={
+                        "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
+                      }
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
                 </div>
               ) : (
                 <div className="expert-avatar-small">
-                  <span>EX</span>
+                  {message.getSender().getAvatar() ? (
+                    <img
+                      src={message.getSender().getAvatar()}
+                      alt="EX"
+                      className="expert-avatar-image"
+                      style={{
+                        width: "22px",
+                        height: "22px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={
+                        "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
+                      }
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
                 </div>
               )}
             </div>
             <div className="message-content">
-              <div className="message-text">{message.text}</div>
+              <div className="message-text">
+                {message.getType() === "video" ? (
+                  <>
+                    <Video size={14} /> {message.getStatus()}
+                  </>
+                ) : message.getType() === "audio" ? (
+                  <>
+                    <Mic size={14} /> {message.getStatus()}
+                  </>
+                ) : (
+                  message.getData()?.text
+                )}
+              </div>
               <div className="message-time">
-                {formatTime(message.timestamp)}
+                {formatTime(new Date(message.getSentAt() * 1000))}
               </div>
             </div>
           </div>
@@ -163,25 +315,64 @@ const ChatInterface = () => {
       </div>
 
       <div className="chat-mode-buttons">
+        {outgoingCall && (
+          <div ref={containerRef} className="outgoing_call_ui">
+            <div className="profile-container">
+              <img
+                src={
+                  outgoingCall.receiverAvatar
+                    ? outgoingCall.receiverAvatar
+                    : "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
+                }
+                alt={outgoingCall.receiver}
+              />
+              <p>Calling {outgoingCall.receiver}...</p>
+            </div>
+            <button
+              className="cancel-call-button"
+              onClick={() =>
+                rejectCall(
+                  outgoingCall.sessionId,
+                  CometChat.CALL_STATUS.CANCELLED
+                )
+              }
+            >
+              <Phone width={16} />
+            </button>
+          </div>
+        )}
+        {incomingCalls?.map((incomingCall) => (
+          <div ref={containerRef} className="outgoing_call_ui">
+            <div className="profile-container">
+              <img
+                src={
+                  incomingCall.receiverAvatar
+                    ? incomingCall.receiverAvatar
+                    : "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
+                }
+                alt={incomingCall.receiver}
+              />
+              <p>Answer call...</p>
+            </div>
+            <button
+              className="accept-call-button"
+              onClick={() => acceptCall(incomingCall.sessionId)}
+            >
+              <Phone width={16} />
+            </button>
+          </div>
+        ))}
         <button
-          className={`mode-button ${activeMode === "chat" ? "active" : ""}`}
-          onClick={() => handleModeChange("chat")}
-          title="Text Chat"
-        >
-          <MessageCircle size={18} />
-          <span>Chat</span>
-        </button>
-        <button
-          className={`mode-button ${activeMode === "audio" ? "active" : ""}`}
-          onClick={() => handleModeChange("audio")}
+          className={`mode-button`}
+          onClick={handleStartAudio}
           title="Voice Chat"
         >
           <Mic size={18} />
           <span>Audio</span>
         </button>
         <button
-          className={`mode-button ${activeMode === "video" ? "active" : ""}`}
-          onClick={() => handleModeChange("video")}
+          className={`mode-button`}
+          onClick={handleStartVideo}
           title="Video Chat"
         >
           <Video size={18} />

@@ -90,7 +90,10 @@ const AIChatInterface = () => {
       <div className="chat-header">
         <div className="ai-avatar">
           <div className="ai-avatar-circle">
-            <span>AI</span>
+            <img
+              src="https://withwilds-assets.s3.us-east-1.amazonaws.com/star.png"
+              style={{ width: "24px" }}
+            />
           </div>
         </div>
         <div className="ai-info">
@@ -119,7 +122,10 @@ const AIChatInterface = () => {
                 </div>
               ) : (
                 <div className="ai-avatar-small">
-                  <span>AI</span>
+                  <img
+                    src="https://withwilds-assets.s3.us-east-1.amazonaws.com/star.png"
+                    style={{ width: "23px", objectFit: "contain"}}
+                  />
                 </div>
               )}
             </div>

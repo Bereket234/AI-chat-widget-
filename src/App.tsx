@@ -15,9 +15,9 @@ function App() {
         text_color: "#2e2e2e",
         font_family: "Robot",
         chat_priority: "human",
-        email_capture: true,
+        email_capture: false,
         widget_background_color: "#fff",
-        ai_only: true, 
+        ai_only: false,
       },
     };
     setWidgetSettings(data.settings);
