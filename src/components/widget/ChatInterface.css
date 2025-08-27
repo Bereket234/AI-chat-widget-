@@ -1,8 +1,4 @@
 .chat-interface {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  margin: 0 10px;
   position: relative;
   height: 100%;
 }
@@ -12,6 +8,15 @@
   height: 100%;
   width: 100%;
   z-index: 200;
+}
+
+.chat-items-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0 10px;
+  position: relative;
+  height: 100%;
 }
 
 .outgoing_call_ui {
@@ -24,7 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding:10px 10px;
+  padding: 10px 10px;
   background-color: var(--primary-bg-light);
   border-radius: 10px;
   color: var(--primary-text);
@@ -284,7 +289,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 10px 0px;
-  position: relative
+  position: relative;
 }
 
 /* Chat Mode Buttons */
@@ -494,4 +499,65 @@
     width: 10px;
     height: 10px;
   }
+}
+
+.cc-bottom-buttons-icon-container {
+  height: 10px !important;
+  width: 10px !important;
+}
+
+.cc-bottom-buttons-icon-container {
+  gap: 0px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+}
+.cc-bottom-buttons-icon-container svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.side-bar-main-user-video video {
+  background-color: black !important;
+  background-image: repeating-conic-gradient(
+    #0073ff2a 0% 25%,
+    #00000031 0% 50%
+  ) !important;
+  background-position: 0 0, 10px 10px !important;
+  background-size: 20px 20px !important;
+}
+
+.cc-name-label {
+  background-color: #0073ff !important;
+  width: 100% !important;
+  font-size: 12px !important;
+  padding: 4px 12px !important;
+  align-items: center !important;
+}
+.cc-name-label > svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+.MuiSvgIcon-root {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.bottom-buttons-other-options svg {
+  bottom: 15px !important;
+}
+
+.MuiButtonBase-root.MuiIconButton-root.jss270 {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.MuiButtonBase-root.MuiIconButton-root.bottom-buttons-icon-button {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+#settingButton {
+  padding: 4px !important;
 }
