@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./ChatInterface.css";
 import { useChatWidget } from "../../context/ChatWidgetContext.tsx";
-import { Mic, Phone, Video } from "lucide-react";
+import { Mic, Phone, Plus, Video } from "lucide-react";
 import { useCometChat } from "../../context/cometChatContext.tsx";
 import { CometChat } from "@cometchat/chat-sdk-javascript";
 
@@ -28,6 +28,32 @@ const ChatInterface = () => {
   const [_, setActiveMode] = useState<"chat" | "audio" | "video">("chat");
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const products = [
+    {
+      name: "Backpack",
+      image:
+        "https://portdesigns.com/6315-large_default/backpack-houston-eco-156.jpg",
+      price: 50,
+    },
+    {
+      name: "Headset",
+      image:
+        "https://www.webex.com/content/dam/www/us/en/images/devices/headsets/cisco-headset-720-series/headset-L1.png",
+      price: 150,
+    },
+    {
+      name: "Camera",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNFZx9oMelJsMZv2Dbv6HITbW2WAImbocqhgwuGeRHsA&s&ec=73068123",
+      price: 500,
+    },
+    {
+      name: "Purse",
+      image: "https://m.media-amazon.com/images/I/71vz71m5usL._UY1000_.jpg",
+      price: 250,
+    },
+  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -181,8 +207,29 @@ const ChatInterface = () => {
   return (
     <div className="chat-interface">
       {activeCall && (
-        <div ref={containerRef} className="call_ui">
-          {" "}
+        <div className="call_container">
+          <div ref={containerRef} className="call_ui">
+            {" "}
+          </div>
+          <div className="products_list">
+            <p className="products_list_title">Recommended Products</p>
+            {products.map((product) => (
+              <div className="product_container">
+                <div className="product_details">
+                  <img src={product.image} alt="prod" />
+                  <div className="product_details_container">
+                    <p className="product_title">{product.name}</p>
+                    <p className="product_price">{product.price}</p>
+                  </div>
+                </div>
+                <div>
+                  <button className="add-to-cart-button">
+                    <Plus size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
       <div className="chat-items-container">
