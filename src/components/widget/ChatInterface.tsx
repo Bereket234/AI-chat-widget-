@@ -182,10 +182,6 @@ const ChatInterface = () => {
     }
   };
 
-  const handleChatWithAI = () => {
-    navigateTo("ai-chat");
-  };
-
   const formatTime = (timestamp: Date) => {
     return timestamp.toLocaleTimeString([], {
       hour: "2-digit",
@@ -256,10 +252,6 @@ const ChatInterface = () => {
             <p className="expert-info-title">{"Expert Support"}</p>
             <p className="expert-info-subtitle">Human Customer Service</p>
           </div>
-
-          <button className="chat-with-ai-btn" onClick={handleChatWithAI}>
-            Chat with AI
-          </button>
         </div>
 
         <div className="chat-messages">

@@ -87,105 +87,107 @@ const AIChatInterface = () => {
 
   return (
     <div className="chat-interface">
-      <div className="chat-header">
-        <div className="ai-avatar">
-          <div className="ai-avatar-circle">
-            <img
-              src="https://withwilds-assets.s3.us-east-1.amazonaws.com/star.png"
-              style={{ width: "24px" }}
-            />
-          </div>
-        </div>
-        <div className="ai-info">
-          <p className="ai-info-title">AI Assistant</p>
-          <p className="ai-info-subtitle">Available 24/7</p>
-        </div>
-        {!widgetSettings?.ai_only && (
-          <button className="contact-human-btn" onClick={handleContactHuman}>
-            Contact Human
-          </button>
-        )}
-      </div>
-
-      <div className="chat-messages">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`message ${
-              message.sender === "user" ? "user-message" : "ai-message"
-            }`}
-          >
-            <div className="message-avatar">
-              {message.sender === "user" ? (
-                <div className="user-avatar">
-                  <User size={16} />
-                </div>
-              ) : (
-                <div className="ai-avatar-small">
-                  <img
-                    src="https://withwilds-assets.s3.us-east-1.amazonaws.com/star.png"
-                    style={{ width: "23px", objectFit: "contain"}}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="message-content">
-              <div className="message-text">{message.text}</div>
-              <div className="message-time">
-                {formatTime(message.timestamp)}
-              </div>
+      <div className="chat-items-container">
+        <div className="chat-header">
+          <div className="ai-avatar">
+            <div className="ai-avatar-circle">
+              <img
+                src="https://withwilds-assets.s3.us-east-1.amazonaws.com/star.png"
+                style={{ width: "24px" }}
+              />
             </div>
           </div>
-        ))}
-
-        {isTyping && (
-          <div className="message ai-message">
-            <div className="message-avatar">
-              <div className="ai-avatar-small">
-                <span>AI</span>
-              </div>
-            </div>
-            <div className="message-content">
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
+          <div className="ai-info">
+            <p className="ai-info-title">AI Assistant</p>
+            <p className="ai-info-subtitle">Available 24/7</p>
           </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div>
-        <form className="chat-input-form" onSubmit={handleSendMessage}>
-          <div className="input-container">
-            <input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Ask me anything..."
-              className="chat-input"
-              disabled={isTyping}
-            />
-            <button
-              type="submit"
-              className="send-button"
-              disabled={!inputMessage.trim() || isTyping}
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M10 18L18 10L10 2M18 10H2"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+          {!widgetSettings?.ai_only && (
+            <button className="contact-human-btn" onClick={handleContactHuman}>
+              Contact Human
             </button>
-          </div>
-        </form>
+          )}
+        </div>
+
+        <div className="chat-messages">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`message ${
+                message.sender === "user" ? "user-message" : "ai-message"
+              }`}
+            >
+              <div className="message-avatar">
+                {message.sender === "user" ? (
+                  <div className="user-avatar">
+                    <User size={16} />
+                  </div>
+                ) : (
+                  <div className="ai-avatar-small">
+                    <img
+                      src="https://withwilds-assets.s3.us-east-1.amazonaws.com/star.png"
+                      style={{ width: "23px", objectFit: "contain" }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="message-content">
+                <div className="message-text">{message.text}</div>
+                <div className="message-time">
+                  {formatTime(message.timestamp)}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {isTyping && (
+            <div className="message ai-message">
+              <div className="message-avatar">
+                <div className="ai-avatar-small">
+                  <span>AI</span>
+                </div>
+              </div>
+              <div className="message-content">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div>
+          <form className="chat-input-form" onSubmit={handleSendMessage}>
+            <div className="input-container">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                placeholder="Ask me anything..."
+                className="chat-input"
+                disabled={isTyping}
+              />
+              <button
+                type="submit"
+                className="send-button"
+                disabled={!inputMessage.trim() || isTyping}
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path
+                    d="M10 18L18 10L10 2M18 10H2"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
