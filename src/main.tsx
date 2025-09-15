@@ -12,5 +12,5 @@ createRoot(document.getElementById("root")!).render(
         <App />
       </ChatWidgetProvider>
     </CometChatProvider>
-  </StrictMode>
+  </StrictMode>,
 );

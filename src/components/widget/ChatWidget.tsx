@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useChatWidget } from "../../context/ChatWidgetContext.tsx";
 import type { ReactNode } from "react";
 import "./ChatWidget.css";
 import logo from "../../assets/logo.png";
@@ -37,10 +38,24 @@ interface ChatWidgetProps {
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({ children }) => {
   const [open, setOpen] = useState(false);
+  const { theme } = useChatWidget();
 
   const handleClose = () => {
     setOpen(false);
   };
+
+    // Set all theme colors as CSS variables
+  const widgetStyle = open
+    ? {
+        '--widget-bg': theme.bgColor,
+        '--widget-text': theme.aiTextColor,
+        '--widget-help-bg': theme.helpBgColor,
+        '--widget-help-question-text': theme.helpQuestionTextColor,
+        '--widget-help-text': theme.helpTextColor,
+        '--widget-ai-text': theme.aiTextColor,
+        '--widget-user-text': theme.userTextColor,
+      } as React.CSSProperties
+    : {};
 
   return (
     <div className={`chat-widget-container ${open ? "open" : ""}`}>
@@ -57,9 +72,9 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ children }) => {
 
       {open && (
         <div className="chat-widget-overlay">
-          <div className="chat-widget">
-            <div className="main-chat-header">
-              <h3>How can I help?</h3>
+          <div className="chat-widget" style={widgetStyle}>
+             <div className="main-chat-header" style={{ background: 'var(--widget-help-bg)', color: 'var(--widget-help-question-text)' }}>
+              <h3 style={{ color: 'var(--widget-help-question-text)' }}>How can I help?</h3>
               <button className="close-button" onClick={handleClose}>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path
@@ -72,7 +87,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ children }) => {
               </button>
             </div>
 
-            <div className="chat-content">{children}</div>
+            <div className="chat-content" style={{ color: 'var(--widget-ai-text)' }}>{children}</div>
 
             <div className="chat-footer">
               <span>Powered by</span>

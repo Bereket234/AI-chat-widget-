@@ -362,6 +362,9 @@ class CometChatService {
         onMediaMessageReceived: (message: CometChat.MediaMessage) => {
           this.messageListeners.forEach((listener) => listener(message));
         },
+        onCustomMessageReceived: (message: CometChat.CustomMessage) => {
+          this.messageListeners.forEach((listener) => listener(message));
+        }
       })
     );
 

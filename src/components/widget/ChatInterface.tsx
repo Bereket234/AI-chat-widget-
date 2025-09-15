@@ -333,6 +333,22 @@ const ChatInterface = () => {
                     <>
                       <Mic size={14} /> {message.getStatus()}
                     </>
+                  ) : message.getType() == "product" ? (
+                    <div
+                      style={{ display: "flex", gap: 10, alignItems: "center" }}
+                    >
+                      <div style={{ width: "50px", height: "50px"}}>
+                        <img
+                          src={message.getData()?.customData.featuredImage}
+                          alt={message.getData()?.customData.title}
+                          style={{ width: "50px", height: "50px" }}
+                        />
+                      </div>
+                      <div>
+                        <p>{message.getData()?.customData.title}</p>
+                        <p>${message.getData()?.customData.price}</p>
+                      </div>
+                    </div>
                   ) : (
                     message.getData()?.text
                   )}

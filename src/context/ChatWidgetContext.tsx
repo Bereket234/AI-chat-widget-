@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
+import { generateThemeFromBg, type CustomTheme } from "../utils/theme";
 
 export const CHAT_PAGES = ["email-capture", "chat", "ai-chat"] as const;
 
@@ -29,6 +30,7 @@ interface ChatWidgetContextType {
   setWidgetSettings: (settings: WidgetSettings) => void;
   resetState: () => void;
   isAIPriority: () => boolean;
+  theme: CustomTheme;
 }
 
 const ChatWidgetContext = createContext<ChatWidgetContextType | undefined>(
@@ -44,9 +46,16 @@ export const ChatWidgetProvider: React.FC<ChatWidgetProviderProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState<ChatPage>("email-capture");
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const [widgetSettings, setWidgetSettings] = useState<WidgetSettings | null>(
-    null
-  );
+  const [widgetSettings, setWidgetSettings] = useState<WidgetSettings | null>(null);
+
+  // Compute theme colors
+  let theme: CustomTheme = generateThemeFromBg("#fff");
+  if (widgetSettings?.widget_background_color) {
+    let bg = widgetSettings.widget_background_color;
+    if (bg === "dark" || bg === "Dark") bg = "#222";
+    if (bg === "light" || bg === "Light") bg = "#fff";
+    theme = generateThemeFromBg(bg);
+  }
 
   const navigateTo = (page: ChatPage) => {
     if (!CHAT_PAGES.includes(page)) {
@@ -93,6 +102,7 @@ export const ChatWidgetProvider: React.FC<ChatWidgetProviderProps> = ({
     setWidgetSettings: updateWidgetSettings,
     resetState,
     isAIPriority,
+    theme,
   };
 
   return (
