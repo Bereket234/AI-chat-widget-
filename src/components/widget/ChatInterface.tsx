@@ -237,8 +237,8 @@ const ChatInterface = () => {
                 <img
                   src={expertImage}
                   style={{
-                    width: "32px",
-                    height: "32px",
+                    width: "30px",
+                    height: "30px",
                     borderRadius: "50%",
                     objectFit: "cover",
                   }}
@@ -337,7 +337,7 @@ const ChatInterface = () => {
                     <div
                       style={{ display: "flex", gap: 10, alignItems: "center" }}
                     >
-                      <div style={{ width: "50px", height: "50px"}}>
+                      <div style={{ width: "50px", height: "50px" }}>
                         <img
                           src={message.getData()?.customData.featuredImage}
                           alt={message.getData()?.customData.title}
@@ -382,30 +382,12 @@ const ChatInterface = () => {
 
         <div className="chat-mode-buttons">
           {outgoingCall && (
-            <div ref={containerRef} className="outgoing_call_ui">
-              <div className="profile-container">
-                <img
-                  src={
-                    outgoingCall.receiverAvatar
-                      ? outgoingCall.receiverAvatar
-                      : "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
-                  }
-                  alt={outgoingCall.receiver}
-                />
-                <p>Calling {outgoingCall.receiver}...</p>
-              </div>
-              <button
-                className="cancel-call-button"
-                onClick={() =>
-                  rejectCall(
-                    outgoingCall.sessionId,
-                    CometChat.CALL_STATUS.CANCELLED
-                  )
-                }
-              >
-                <Phone width={16} />
-              </button>
-            </div>
+            <OutgoingCallUI
+              containerRef={containerRef}
+              outgoingCall={outgoingCall}
+              cometChatService={cometChatService}
+              rejectCall={rejectCall}
+            />
           )}
           {incomingCalls?.map((incomingCall) => (
             <div ref={containerRef} className="outgoing_call_ui">
@@ -475,6 +457,67 @@ const ChatInterface = () => {
           </form>
         </div>
       </div>
+    </div>
+  );
+};
+
+type OutgoingCallUIProps = {
+  containerRef: React.RefObject<HTMLDivElement>;
+  outgoingCall: any;
+  cometChatService: any;
+  rejectCall: (sessionId: string, status: string) => void;
+};
+
+const OutgoingCallUI: React.FC<OutgoingCallUIProps> = ({
+  containerRef,
+  outgoingCall,
+  cometChatService,
+  rejectCall,
+}) => {
+  const [receiverName, setReceiverName] = useState<string>("");
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchReceiverName = async () => {
+      try {
+        const user = await cometChatService.getUser(outgoingCall.receiver);
+        if (isMounted) {
+          setReceiverName(user.getName());
+        }
+      } catch {
+        if (isMounted) {
+          setReceiverName("Unknown");
+        }
+      }
+    };
+    fetchReceiverName();
+    return () => {
+      isMounted = false;
+    };
+  }, [cometChatService, outgoingCall.receiver]);
+
+  return (
+    <div ref={containerRef} className="outgoing_call_ui">
+      <div className="profile-container">
+        <img
+          src={
+            outgoingCall.receiverAvatar
+              ? outgoingCall.receiverAvatar
+              : "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
+          }
+          alt={outgoingCall.receiver}
+          style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover" }}
+        />
+        <p>Calling {receiverName}...</p>
+      </div>
+      <button
+        className="cancel-call-button"
+        onClick={() =>
+          rejectCall(outgoingCall.sessionId, CometChat.CALL_STATUS.CANCELLED)
+        }
+      >
+        <Phone width={16} />
+      </button>
     </div>
   );
 };
