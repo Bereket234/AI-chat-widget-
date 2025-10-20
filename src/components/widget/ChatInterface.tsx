@@ -79,10 +79,12 @@ const ChatInterface = () => {
   }, []);
 
   useLayoutEffect(() => {
+    // Ensure we start at the bottom on initial mount
     scrollToBottom();
   }, []);
 
   useEffect(() => {
+    // Scroll after messages change and DOM paints
     const id = requestAnimationFrame(scrollToBottom);
     return () => cancelAnimationFrame(id);
   }, [messages]);
@@ -100,10 +102,11 @@ const ChatInterface = () => {
     }
 
     // Register user and get uid
-    const storeUrl = "https://outpostdemo.myshopify.com";
+    const storeUrl = window.location.hostname;
+    // const storeUrl = "https://outpostdemo.myshopify.com";
     const url =
       (import.meta as any).env.VITE_BACKEND_URL +
-      "/api/cometchat/register-customer";
+      "/api/cometchat/initiate-chat";
     axios
       .post(url, {
         storeUrl: storeUrl,
@@ -111,15 +114,22 @@ const ChatInterface = () => {
         customerName: "",
       })
       .then((res) => {
-        setUid(res.data.customer.cometchatUid);
-        setConversationId(res.data.conversation.conversationId);
-        setUser(res.data.conversation.receiver);
-        localStorage.setItem("uid", res.data.customer.cometchatUid);
+        console.log("----initiate chat response----", res);
+        setUid(res.data.data.customer.cometchatUid);
+        setConversationId(res.data.data.conversation.conversationId);
+        console.log(
+          "----conversationId----",
+          res.data.data.conversation.conversationId,
+        );
+        setUser(res.data.data.conversation.receiver);
+        console.log("----user----", res.data.data.conversation.receiver);
+
+        localStorage.setItem("uid", res.data.data.customer.cometchatUid);
         localStorage.setItem(
           "conversationId",
-          res.data.conversation.conversationId
+          res.data.data.conversation.conversationId,
         );
-        localStorage.setItem("user", res.data.conversation.receiver);
+        localStorage.setItem("user", res.data.data.conversation.receiver);
       })
       .catch((err) => {
         console.log(err);
@@ -157,7 +167,7 @@ const ChatInterface = () => {
     } else {
       console.log("uidnot found", uid);
     }
-  }, [uid]);
+  }, [uid, user]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -177,6 +187,8 @@ const ChatInterface = () => {
     outgoingCall,
     incomingCalls,
     conversationId,
+    uid,
+    user,
   ]);
 
   useEffect(() => {
@@ -256,10 +268,10 @@ const ChatInterface = () => {
     messages[0]?.getSender().getUid() === user
       ? messages[0]?.getSender().getAvatar()
       : receiver &&
-        "getAvatar" in receiver &&
-        typeof receiver.getAvatar === "function"
-      ? receiver.getAvatar()
-      : undefined;
+          "getAvatar" in receiver &&
+          typeof receiver.getAvatar === "function"
+        ? receiver.getAvatar()
+        : undefined;
   return (
     <div className="chat-interface">
       {activeCall && (
