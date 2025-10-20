@@ -11,37 +11,37 @@ function App() {
   const { currentPage, setWidgetSettings, theme } = useChatWidget();
 
   useEffect(() => {
-    // const data = {
-    //   settings: {
-    //     text_color: "#2e2e2e",
-    //     font_family: "Robot",
-    //     chat_priority: "human",
-    //     email_capture: true,
-    //     widget_background_color: "#fff",
-    //     ai_only: false,
-    //   },
-    // };
-    // setWidgetSettings(data.settings);
-    const url = window.location.hostname;
-    console.log("----url----", url);
-    fetch(
-      `https://api.withoutpost.com/api/theme/widget-customization?shop=outpostdemo.myshopify.com`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
+    const data = {
+      settings: {
+        text_color: "#2e2e2e",
+        font_family: "Robot",
+        chat_priority: "human",
+        email_capture: false,
+        widget_background_color: "#fff",
+        ai_only: false,
       },
-    )
-      .then((res) => {
-        return res.json();
-      })
-      .then((response) => {
-        if (response.data && response.data.settings) {
-          setWidgetSettings(response.data.settings);
-        }
-      })
-      .catch((err) => {
-        console.log("----error fetching widget customization----", err);
-      });
+    };
+    setWidgetSettings(data.settings);
+    // const url = window.location.hostname;
+    // console.log("----url----", url);
+    // fetch(
+    //   `https://api.withoutpost.com/api/theme/widget-customization?shop=outpostdemo.myshopify.com`,
+    //   {
+    //     method: "GET",
+    //     headers: { "Content-Type": "application/json" },
+    //   },
+    // )
+    //   .then((res) => {
+    //     return res.json();
+    //   })
+    //   .then((response) => {
+    //     if (response.data && response.data.settings) {
+    //       setWidgetSettings(response.data.settings);
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log("----error fetching widget customization----", err);
+    //   });
   }, []);
 
   useEffect(() => {

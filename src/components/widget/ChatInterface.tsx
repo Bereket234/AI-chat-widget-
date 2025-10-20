@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import "./ChatInterface.css";
 import { useChatWidget } from "../../context/ChatWidgetContext.tsx";
 import { Mic, Phone, Plus, Video } from "lucide-react";
 import { useCometChat } from "../../context/cometChatContext.tsx";
 import { CometChat } from "@cometchat/chat-sdk-javascript";
+import axios from "axios";
 
 const ChatInterface = () => {
   const { navigateTo, widgetSettings } = useChatWidget();
@@ -22,12 +23,19 @@ const ChatInterface = () => {
     setMessages,
     rejectCall,
     acceptCall,
+    uid,
+    setUid,
+    conversationId,
+    setConversationId,
+    user,
+    setUser,
   } = useCometChat();
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping] = useState(false);
   const [_, setActiveMode] = useState<"chat" | "audio" | "video">("chat");
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
 
   const products = [
     {
@@ -56,10 +64,12 @@ const ChatInterface = () => {
   ];
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const element = chatMessagesRef.current;
+    if (!element) return;
+    element.scrollTop = element.scrollHeight;
   };
 
-  const user = "3b36ad5f-7f5f-4544-b05e-45b72c72e1e2";
+  // const user = "user_3";
 
   useEffect(() => {
     if (widgetSettings?.ai_only) {
@@ -68,9 +78,53 @@ const ChatInterface = () => {
     }
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     scrollToBottom();
+  }, []);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(scrollToBottom);
+    return () => cancelAnimationFrame(id);
   }, [messages]);
+
+  useEffect(() => {
+    const uidFromStorage = localStorage.getItem("uid");
+    const conversationIdFromStorage = localStorage.getItem("conversationId");
+    const userFromStorage = localStorage.getItem("user");
+    if (uidFromStorage && conversationIdFromStorage && userFromStorage) {
+      setUid(uidFromStorage);
+      setConversationId(conversationIdFromStorage);
+      setUser(userFromStorage);
+      console.log("----got from storage----");
+      return;
+    }
+
+    // Register user and get uid
+    const storeUrl = "https://outpostdemo.myshopify.com";
+    const url =
+      (import.meta as any).env.VITE_BACKEND_URL +
+      "/api/cometchat/register-customer";
+    axios
+      .post(url, {
+        storeUrl: storeUrl,
+        customerEmail: "",
+        customerName: "",
+      })
+      .then((res) => {
+        setUid(res.data.customer.cometchatUid);
+        setConversationId(res.data.conversation.conversationId);
+        setUser(res.data.conversation.receiver);
+        localStorage.setItem("uid", res.data.customer.cometchatUid);
+        localStorage.setItem(
+          "conversationId",
+          res.data.conversation.conversationId
+        );
+        localStorage.setItem("user", res.data.conversation.receiver);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [cometChatUser]);
 
   useEffect(() => {
     const config = {
@@ -79,12 +133,16 @@ const ChatInterface = () => {
       authKey: (import.meta as any).env.VITE_COMETCHAT_AUTH_KEY as string,
     };
 
-    if (!isAuthenticated && config.appId && config.region && config.authKey) {
+    if (
+      !isAuthenticated &&
+      config.appId &&
+      config.region &&
+      config.authKey &&
+      uid.length > 0
+    ) {
       (async () => {
         const ok = await initialize(config);
         if (!ok) return;
-
-        const uid = "test_user_1";
 
         try {
           await cometChatService?.createUser(uid, "beki", config.authKey);
@@ -96,16 +154,19 @@ const ChatInterface = () => {
         // const user = await cometChatService?.getUser(uid);
         login(uid);
       })();
+    } else {
+      console.log("uidnot found", uid);
     }
-  }, []);
+  }, [uid]);
 
   useEffect(() => {
     const fetchMessages = async () => {
-      const conversations = await cometChatService.getConversations(10);
-      const target = conversations[0];
-
-      const messages = await cometChatService.getMessages(target.id, 30);
+      const messages = await cometChatService.getMessages(user, 30);
+      console.log("--------messages------", messages);
       setMessages(messages);
+      if (messages) {
+        scrollToBottom();
+      }
     };
     fetchMessages();
     return () => {};
@@ -115,6 +176,7 @@ const ChatInterface = () => {
     activeCall,
     outgoingCall,
     incomingCalls,
+    conversationId,
   ]);
 
   useEffect(() => {
@@ -146,7 +208,6 @@ const ChatInterface = () => {
       e.preventDefault();
 
       if (!inputMessage.trim()) return;
-      console.log("here");
 
       const messege = await cometChatService.sendMessage(user, inputMessage);
 
@@ -199,11 +260,16 @@ const ChatInterface = () => {
         typeof receiver.getAvatar === "function"
       ? receiver.getAvatar()
       : undefined;
-  console.log("expertImage", expertImage);
   return (
     <div className="chat-interface">
       {activeCall && (
         <div className="call_container">
+          <button
+            className="end-call-button"
+            onClick={() => endCall(activeCall.sessionId)}
+          >
+            x
+          </button>
           <div ref={containerRef} className="call_ui">
             {" "}
           </div>
@@ -254,7 +320,7 @@ const ChatInterface = () => {
           </div>
         </div>
 
-        <div className="chat-messages">
+        <div className="chat-messages" ref={chatMessagesRef}>
           {messages.map((message) => (
             <div
               key={message.getId()}
@@ -471,31 +537,8 @@ type OutgoingCallUIProps = {
 const OutgoingCallUI: React.FC<OutgoingCallUIProps> = ({
   containerRef,
   outgoingCall,
-  cometChatService,
   rejectCall,
 }) => {
-  const [receiverName, setReceiverName] = useState<string>("");
-
-  useEffect(() => {
-    let isMounted = true;
-    const fetchReceiverName = async () => {
-      try {
-        const user = await cometChatService.getUser(outgoingCall.receiver);
-        if (isMounted) {
-          setReceiverName(user.getName());
-        }
-      } catch {
-        if (isMounted) {
-          setReceiverName("Unknown");
-        }
-      }
-    };
-    fetchReceiverName();
-    return () => {
-      isMounted = false;
-    };
-  }, [cometChatService, outgoingCall.receiver]);
-
   return (
     <div ref={containerRef} className="outgoing_call_ui">
       <div className="profile-container">
@@ -506,9 +549,14 @@ const OutgoingCallUI: React.FC<OutgoingCallUIProps> = ({
               : "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
           }
           alt={outgoingCall.receiver}
-          style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover" }}
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            objectFit: "cover",
+          }}
         />
-        <p>Calling {receiverName}...</p>
+        <p>Calling Expert...</p>
       </div>
       <button
         className="cancel-call-button"

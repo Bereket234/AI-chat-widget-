@@ -30,6 +30,12 @@ export interface CometChatContextType {
   endCall: (sessionId: string) => Promise<void>;
   messages: CometChat.BaseMessage[];
   setMessages: React.Dispatch<React.SetStateAction<CometChat.BaseMessage[]>>;
+  uid: string;
+  setUid: React.Dispatch<React.SetStateAction<string>>;
+  conversationId: string;
+  setConversationId: React.Dispatch<React.SetStateAction<string>>;
+  user: string;
+  setUser: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const CometChatContext = createContext<CometChatContextType | undefined>(
@@ -49,6 +55,9 @@ export const CometChatProvider: React.FC<ProviderProps> = ({ children }) => {
   const [activeCall, setActiveCall] = useState<CallSession | null>(null);
   const [outgoingCall, setOutgoingCall] = useState<CallSession | null>(null);
   const [messages, setMessages] = useState<CometChat.BaseMessage[]>([]);
+  const [uid, setUid] = useState("");
+  const [conversationId, setConversationId] = useState("");
+  const [user, setUser] = useState<string>("");
 
   // Helper to normalize CometChat.Call to CallSession
   const toCallSession = (call: any): CallSession => {
@@ -200,6 +209,12 @@ export const CometChatProvider: React.FC<ProviderProps> = ({ children }) => {
     rejectCall,
     endCall,
     setMessages,
+    uid,
+    setUid,
+    conversationId,
+    setConversationId,
+    user,
+    setUser,
   };
 
   return (
