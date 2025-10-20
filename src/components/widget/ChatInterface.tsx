@@ -436,17 +436,17 @@ const ChatInterface = () => {
                   {formatTime(new Date(message.getSentAt() * 1000))}
                 </div>
               </div>
+              {callEnded && (
+                <div className="call-ended-row">
+                  <div className="call-ended-bubble message-content">
+                    <div className="message-text">
+                      Call ended at {formatTime(new Date())}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
-          {callEnded && (
-            <div className="call-ended-row">
-              <div className="call-ended-bubble message-content">
-                <div className="message-text">
-                  Call ended at {formatTime(new Date())}
-                </div>
-              </div>
-            </div>
-          )}
 
           {isTyping && (
             <div className="message bot-message">
