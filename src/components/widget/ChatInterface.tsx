@@ -36,6 +36,7 @@ const ChatInterface = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
+  const callEnded = true;
 
   const products = [
     {
@@ -119,7 +120,7 @@ const ChatInterface = () => {
         setConversationId(res.data.data.conversation.conversationId);
         console.log(
           "----conversationId----",
-          res.data.data.conversation.conversationId,
+          res.data.data.conversation.conversationId
         );
         setUser(res.data.data.conversation.receiver);
         console.log("----user----", res.data.data.conversation.receiver);
@@ -127,7 +128,7 @@ const ChatInterface = () => {
         localStorage.setItem("uid", res.data.data.customer.cometchatUid);
         localStorage.setItem(
           "conversationId",
-          res.data.data.conversation.conversationId,
+          res.data.data.conversation.conversationId
         );
         localStorage.setItem("user", res.data.data.conversation.receiver);
       })
@@ -268,10 +269,10 @@ const ChatInterface = () => {
     messages[0]?.getSender().getUid() === user
       ? messages[0]?.getSender().getAvatar()
       : receiver &&
-          "getAvatar" in receiver &&
-          typeof receiver.getAvatar === "function"
-        ? receiver.getAvatar()
-        : undefined;
+        "getAvatar" in receiver &&
+        typeof receiver.getAvatar === "function"
+      ? receiver.getAvatar()
+      : undefined;
   return (
     <div className="chat-interface">
       {activeCall && (
@@ -437,6 +438,15 @@ const ChatInterface = () => {
               </div>
             </div>
           ))}
+          {callEnded && (
+            <div className="call-ended-row">
+              <div className="call-ended-bubble message-content">
+                <div className="message-text">
+                  Call ended at {formatTime(new Date())}
+                </div>
+              </div>
+            </div>
+          )}
 
           {isTyping && (
             <div className="message bot-message">
