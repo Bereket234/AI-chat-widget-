@@ -436,15 +436,6 @@ const ChatInterface = () => {
                   {formatTime(new Date(message.getSentAt() * 1000))}
                 </div>
               </div>
-              {callEnded && (
-                <div className="call-ended-row">
-                  <div className="call-ended-bubble message-content">
-                    <div className="message-text">
-                      Call ended at {formatTime(new Date())}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
 
@@ -469,51 +460,62 @@ const ChatInterface = () => {
         </div>
 
         <div className="chat-mode-buttons">
-          {outgoingCall && (
-            <OutgoingCallUI
-              containerRef={containerRef}
-              outgoingCall={outgoingCall}
-              cometChatService={cometChatService}
-              rejectCall={rejectCall}
-            />
-          )}
-          {incomingCalls?.map((incomingCall) => (
-            <div ref={containerRef} className="outgoing_call_ui">
-              <div className="profile-container">
-                <img
-                  src={
-                    incomingCall.receiverAvatar
-                      ? incomingCall.receiverAvatar
-                      : "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
-                  }
-                  alt={incomingCall.receiver}
-                />
-                <p>Answer call...</p>
+          {callEnded && (
+            <div className="call-ended-row">
+              <div className="call-ended-bubble message-content">
+                <div className="message-text">
+                  Conversation ended at {formatTime(new Date())}
+                </div>
               </div>
-              <button
-                className="accept-call-button"
-                onClick={() => acceptCall(incomingCall.sessionId)}
-              >
-                <Phone width={16} />
-              </button>
             </div>
-          ))}
-          <button
-            className={`mode-button`}
-            onClick={handleStartAudio}
-            title="Voice Chat"
-          >
-            <Mic size={18} />
-            <span>Audio</span>
-          </button>
-          <button
-            className={`mode-button`}
-            onClick={handleStartVideo}
-            title="Video Chat"
-          >
-            <Video size={18} />
-            <span>Video</span>
-          </button>
+          )}
+          <div className="chat-mode-buttons-container">
+            {outgoingCall && (
+              <OutgoingCallUI
+                containerRef={containerRef}
+                outgoingCall={outgoingCall}
+                cometChatService={cometChatService}
+                rejectCall={rejectCall}
+              />
+            )}
+            {incomingCalls?.map((incomingCall) => (
+              <div ref={containerRef} className="outgoing_call_ui">
+                <div className="profile-container">
+                  <img
+                    src={
+                      incomingCall.receiverAvatar
+                        ? incomingCall.receiverAvatar
+                        : "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
+                    }
+                    alt={incomingCall.receiver}
+                  />
+                  <p>Answer call...</p>
+                </div>
+                <button
+                  className="accept-call-button"
+                  onClick={() => acceptCall(incomingCall.sessionId)}
+                >
+                  <Phone width={16} />
+                </button>
+              </div>
+            ))}
+            <button
+              className={`mode-button`}
+              onClick={handleStartAudio}
+              title="Voice Chat"
+            >
+              <Mic size={18} />
+              <span>Audio</span>
+            </button>
+            <button
+              className={`mode-button`}
+              onClick={handleStartVideo}
+              title="Video Chat"
+            >
+              <Video size={18} />
+              <span>Video</span>
+            </button>
+          </div>
         </div>
         <div>
           <form className="chat-input-form" onSubmit={handleSendMessage}>
