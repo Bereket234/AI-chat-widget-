@@ -33,6 +33,8 @@ const ChatInterface = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping] = useState(false);
   const [_, setActiveMode] = useState<"chat" | "audio" | "video">("chat");
+  const [isConnectingToHuman, setIsConnectingToHuman] = useState(true);
+  const fallbackTimerRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -77,7 +79,18 @@ const ChatInterface = () => {
       navigateTo("ai-chat");
       return;
     }
-  }, []);
+
+    fallbackTimerRef.current = setTimeout(() => {
+      console.log("Connection timeout - hiding loading state");
+      setIsConnectingToHuman(false);
+    }, 10000);
+
+    return () => {
+      if (fallbackTimerRef.current) {
+        clearTimeout(fallbackTimerRef.current);
+      }
+    };
+  }, [widgetSettings?.ai_only]);
 
   useLayoutEffect(() => {
     // Ensure we start at the bottom on initial mount
@@ -164,6 +177,12 @@ const ChatInterface = () => {
         await cometChatService?.login(uid, config.authKey);
         // const user = await cometChatService?.getUser(uid);
         login(uid);
+        
+        setIsConnectingToHuman(false);
+        
+        if (fallbackTimerRef.current) {
+          clearTimeout(fallbackTimerRef.current);
+        }
       })();
     } else {
       console.log("uidnot found", uid);
@@ -273,6 +292,38 @@ const ChatInterface = () => {
         typeof receiver.getAvatar === "function"
       ? receiver.getAvatar()
       : undefined;
+
+  if (isConnectingToHuman) {
+    return (
+      <div className="connecting-to-human">
+        <div className="connecting-content">
+          {/* Loading Icon */}
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+          </div>
+          
+          {/* Title */}
+          <h2 className="connecting-title">
+            Please wait, connecting you to an available expert.
+          </h2>
+          
+          {/* Sub Copy */}
+          <p className="connecting-subtitle">
+            Estimated wait time: 1-2 min
+          </p>
+          
+          {/* Cancel Button */}
+          <button 
+            className="cancel-button" 
+            onClick={() => navigateTo("ai-chat")}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="chat-interface">
       {activeCall && (
